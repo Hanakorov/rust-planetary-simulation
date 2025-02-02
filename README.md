@@ -1,4 +1,4 @@
-# Planetary Orbital Simulation
+# Planetary Orbital Simulation (100% rust)
 
 This is a simple 2D simulation that models the movement of planets around a central body using Newtonian physics. The simulation uses the `macroquad` crate for graphics and user input handling in the Rust programming language.
 
