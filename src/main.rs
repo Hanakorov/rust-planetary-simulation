@@ -21,6 +21,10 @@ impl Body {
         }
         self.position += self.velocity * dt;
     }
+
+    fn speed(&self) -> f32 {
+        self.velocity.length()
+    }
 }
 
 #[macroquad::main("Orbital Simulation")]
@@ -98,6 +102,22 @@ async fn main() {
 
         draw_circle(satellite_1.position.x, satellite_1.position.y, satellite_1.radius, satellite_1.color);
         draw_circle(satellite_2.position.x, satellite_2.position.y, satellite_2.radius, satellite_2.color);
+
+        // Добавление текста слева
+        draw_text(
+            &format!("Planet 1: Radius: {:.1}, Speed: {:.2}", satellite_1.radius, satellite_1.speed()),
+            20.0,
+            40.0,
+            20.0,
+            WHITE,
+        );
+        draw_text(
+            &format!("Planet 2: Radius: {:.1}, Speed: {:.2}", satellite_2.radius, satellite_2.speed()),
+            20.0,
+            80.0,
+            20.0,
+            WHITE,
+        );
 
         next_frame().await;
     }
