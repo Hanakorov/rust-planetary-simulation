@@ -9,7 +9,7 @@ struct Body {
 }
 
 impl Body {
-    fn update_position(&mut self, planets: &Vec<Body>, dt: f32) {
+    fn update_position(&mut self, planets: &[Body], dt: f32) {
         for planet in planets {
             if planet.position != self.position {
                 let direction = planet.position - self.position;
@@ -27,83 +27,77 @@ impl Body {
     }
 }
 
+fn create_satellite(center: Vec2, orbit_radius: f32, color: Color) -> Body {
+    let start_pos = vec2(center.x + orbit_radius, center.y);
+    let direction = (start_pos - center).normalize();
+    let orbital_speed = (5000.0_f32 / orbit_radius).sqrt();
+    let velocity = vec2(-direction.y, direction.x) * orbital_speed;
+
+    Body {
+        position: start_pos,
+        velocity,
+        radius: 10.0,
+        color,
+    }
+}
+
+fn draw_orbit_trail(trail: &[Vec2], color: Color) {
+    for i in 1..trail.len() {
+        draw_line(trail[i - 1].x, trail[i - 1].y, trail[i].x, trail[i].y, 2.0, color);
+    }
+}
+
+fn update_trails(trails: &mut [Vec<Vec2>], satellites: &[Body]) {
+    for (trail, satellite) in trails.iter_mut().zip(satellites) {
+        trail.push(satellite.position);
+        if trail.len() > 500 {
+            trail.remove(0);
+        }
+    }
+}
+
 #[macroquad::main("Orbital Simulation")]
 async fn main() {
     let center = vec2(screen_width() / 2.0, screen_height() / 2.0);
 
-    let planets = vec![
-        Body {
-            position: center,
-            velocity: vec2(0.0, 0.0),
-            radius: 100.0,
-            color: YELLOW,
-        },
-    ];
+    let planets = vec![Body {
+        position: center,
+        velocity: vec2(0.0, 0.0),
+        radius: 100.0,
+        color: YELLOW,
+    }];
 
-    let orbit_radius_1 = 100.0;
-    let orbital_speed_1 = (5000.0_f32 / orbit_radius_1).sqrt();
+    let mut satellite_1 = create_satellite(center, 100.0, BLUE);
+    let mut satellite_2 = create_satellite(center, 200.0, RED);
 
-    let start_pos_1 = vec2(center.x + orbit_radius_1, center.y);
-    let direction_1 = (start_pos_1 - center).normalize();
-    let velocity_1 = vec2(-direction_1.y, direction_1.x) * orbital_speed_1;
-
-    let mut satellite_1 = Body {
-        position: start_pos_1,
-        velocity: velocity_1,
-        radius: 10.0,
-        color: BLUE,
-    };
-
-    let orbit_radius_2 = 200.0;
-    let orbital_speed_2 = (5000.0_f32 / orbit_radius_2).sqrt(); 
-
-    let start_pos_2 = vec2(center.x + orbit_radius_2, center.y);
-    let direction_2 = (start_pos_2 - center).normalize();
-    let velocity_2 = vec2(-direction_2.y, direction_2.x) * orbital_speed_2;
-
-    let mut satellite_2 = Body {
-        position: start_pos_2,
-        velocity: velocity_2,
-        radius: 10.0,
-        color: RED,
-    };
-
-    let mut trail_1: Vec<Vec2> = Vec::new();
-    let mut trail_2: Vec<Vec2> = Vec::new();
+    let  trail_1: Vec<Vec2> = Vec::new();
+    let  trail_2: Vec<Vec2> = Vec::new();
 
     loop {
         clear_background(BLACK);
         let dt = get_frame_time();
 
+        // Обновление позиций
         satellite_1.update_position(&planets, dt);
         satellite_2.update_position(&planets, dt);
 
-        trail_1.push(satellite_1.position);
-        trail_2.push(satellite_2.position);
+        // Обновление траекторий
+        update_trails(&mut [trail_1.clone(), trail_2.clone()], &[satellite_1.clone(), satellite_2.clone()]);
 
-        if trail_1.len() > 500 {
-            trail_1.remove(0);
-        }
-        if trail_2.len() > 500 {
-            trail_2.remove(0);
-        }
+        // Отрисовка орбит
+        draw_circle_lines(center.x, center.y, 100.0, 1.0, DARKGRAY);
+        draw_circle_lines(center.x, center.y, 200.0, 1.0, DARKGRAY);
 
-        draw_circle_lines(center.x, center.y, orbit_radius_1, 1.0, DARKGRAY);
-        draw_circle_lines(center.x, center.y, orbit_radius_2, 1.0, DARKGRAY);
+        // Отрисовка траекторий
+        draw_orbit_trail(&trail_1, BLUE);
+        draw_orbit_trail(&trail_2, RED);
 
-        for i in 1..trail_1.len() {
-            draw_line(trail_1[i - 1].x, trail_1[i - 1].y, trail_1[i].x, trail_1[i].y, 2.0, BLUE);
-        }
-        for i in 1..trail_2.len() {
-            draw_line(trail_2[i - 1].x, trail_2[i - 1].y, trail_2[i].x, trail_2[i].y, 2.0, RED);
-        }
-
+        // Отрисовка объектов
         draw_circle(center.x, center.y, 30.0, YELLOW);
-
         draw_circle(satellite_1.position.x, satellite_1.position.y, satellite_1.radius, satellite_1.color);
         draw_circle(satellite_2.position.x, satellite_2.position.y, satellite_2.radius, satellite_2.color);
 
-        // Добавление текста слева
+        // Отображение информации
         draw_text(
             &format!("Planet 1: Radius: {:.1}, Speed: {:.2}", satellite_1.radius, satellite_1.speed()),
             20.0,
