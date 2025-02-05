@@ -9,29 +9,16 @@ This is a simple 2D simulation that models the movement of planets around a cent
 
 ## Changelog
 
-#### [0.0.3v] - 2025-02-04
+#### [0.0.4v] - 2025-02-04
 
 ##### Added
+- **`draw_planet_with_shadow` function**: implemented shadows on planets based on the light source (star).
+
+#### [v0.0.3] - Initial Release
+
 - **`create_satellite` function**: Centralized satellite creation logic to avoid code duplication for initializing satellites with orbital parameters.
 - **`update_trails` function**: Unified trail management logic for satellites, reducing repetitive code.
 - **`draw_orbit_trail` function**: Simplified trail rendering by encapsulating repetitive drawing logic.
-
-##### Changed
-- Refactored the main loop to use helper functions, improving readability and maintainability.
-- Replaced repetitive trail updates with an iteration-based approach using the `update_trails` function.
-- Reduced redundancy in satellite and orbit initialization.
-
-##### Improved
-- The structure of the code, making it modular and easier to extend.
-- Readability of the code by extracting repeated logic into dedicated functions.
-- Performance and clarity in managing satellite trails by consolidating trail operations.
-
-#### [v0.0.2] - Initial Release
-
-- Orbital simulation with two satellites and a central planet.
-- Trail rendering for satellite paths with a maximum trail size of 500 points.
-- Real-time physics simulation with gravitational forces and velocity updates.
-- Visualization of satellite orbits and trails, along with dynamic speed information display.
 
 ## Dependencies:
 - [Rust](https://www.rust-lang.org/)
